@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import HttpResponseRedirect, redirect, render
 
 from . import util
 
@@ -13,3 +13,17 @@ def wiki(request, title):
         "entries": util.get_entry(title)
     })
 
+def search(request):
+    if request.method == "POST":
+        searched = request.POST.get("q", "")
+        result_list = []
+        if util.get_entry(searched):
+            return wiki(request,searched)
+        else:
+            for x in util.list_entries():
+                if searched.lower() == x[:len(searched)].lower():
+                    result_list.append(x)
+
+    return render(request, "encyclopedia/search.html",{
+        "result_list": result_list
+    })
